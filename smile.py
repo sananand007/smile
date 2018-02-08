@@ -29,12 +29,25 @@ train_X = train_X.reshape(train_X.shape[0], train_X.shape[1], train_X.shape[2], 
 #test_X /= 255.0
 
 model = Sequential()
-model.add(Flatten(input_shape=(img_rows, img_cols,1)))
-model.add(Dense(num_classes, activation='softmax') )
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.add(Conv2D(32, (3,3), activation='relu', input_shape=(img_rows, img_cols,1)))
+model.add(MaxPooling2D(pool_size=(2,2)))
+
+model.add(Conv2D(32,(3,3),activation='relu'))
+model.add(MaxPooling2D(pool_size=(2,2)))
+
+model.add(Conv2D(64, (3, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+model.add(Dropout(0.50))
+
+model.add(Flatten())
+model.add(Dense(num_classes, activation='softmax'))
+sgd=SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 
 model.fit(train_X, train_y,
     epochs=config.epochs, verbose=1,
     validation_data=(test_X, test_y), callbacks=[WandbKerasCallback()])
 
 model.save("smile.h5")
+
